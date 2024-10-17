@@ -8,11 +8,11 @@ datasource db {
 }
 
 model Book {
-  id          String        @id
+  id          String        @id @default(uuid())
   title       String
   author      String
   createdAt   DateTime      @default(now())
-  updatedAt   DateTime
+  updatedAt   DateTime      @updatedAt
   description String?
   image       String?
   slNo        String        @unique
@@ -24,14 +24,14 @@ model Book {
 }
 
 model Category {
-  id    String  @id
+  id    String  @id @default(uuid())
   genre String
   type  String?
   Book  Book[]
 }
 
 model Comment {
-  id        String   @id
+  id        String   @id @default(uuid())
   content   String
   bookId    String
   userId    String
@@ -41,7 +41,7 @@ model Comment {
 }
 
 model Loan {
-  id         String     @id
+  id         String     @id @default(uuid())
   userId     String
   bookId     String
   loanDate   DateTime
@@ -52,14 +52,14 @@ model Loan {
 }
 
 model Menu {
-  id    String @id
+  id    String @id @default(uuid())
   title String
   link  String
   role  Role
 }
 
 model Reservation {
-  id         String   @id
+  id         String   @id @default(uuid())
   userId     String
   bookId     String
   reservedAt DateTime @default(now())
@@ -68,7 +68,7 @@ model Reservation {
 }
 
 model User {
-  id          String        @id
+  id          String       @id @default(uuid())
   name        String
   email       String        @unique
   password    String
@@ -76,7 +76,7 @@ model User {
   phone       String?
   role        Role
   createdAt   DateTime      @default(now())
-  updatedAt   DateTime
+  updatedAt   DateTime      @updatedAt
   Comment     Comment[]
   Loan        Loan[]
   Reservation Reservation[]
