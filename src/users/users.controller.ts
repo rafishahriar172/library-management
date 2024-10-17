@@ -17,4 +17,10 @@ export class UsersController {
   async getUserByEmail(@Param('email') email: string) {
     return this.usersService.findByEmail(email);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async getUsers(){
+    return this.usersService.getUser();
+  }
 }
