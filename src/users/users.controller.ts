@@ -11,4 +11,10 @@ export class UsersController {
   async getUser(@Param('id') id: string) {
     return this.usersService.findById(id);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('email/:email')  // Change route to differentiate it
+  async getUserByEmail(@Param('email') email: string) {
+    return this.usersService.findByEmail(email);
+  }
 }
