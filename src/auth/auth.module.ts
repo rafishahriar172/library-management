@@ -14,7 +14,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService], // Inject ConfigService to read environment variables
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '1h' }, // Set your token expiration
+        signOptions: { expiresIn: '3600s' }, // Set your token expiration
       }),
     }),
     ConfigModule, // Ensure ConfigModule is imported to use environment variables

@@ -19,4 +19,11 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
+
+  @Post('registerAdmin')
+  @UseInterceptors(FileInterceptor('image'))
+  async registerbyAdmin(@Body() registerDto: RegisterDto, @UploadedFile() image: Express.Multer.File) {
+    const userData = { ...registerDto, image };
+    return this.authService.registerbyAdmin(userData);
+  }
 }

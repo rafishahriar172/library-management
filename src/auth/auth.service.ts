@@ -29,4 +29,8 @@ export class AuthService {
   async register(userData: any) {
     return this.usersService.createUser(userData);
   }
+
+  async registerbyAdmin(userData: any) {
+    return this.usersService.createUserByAdmin(userData);
+  }
 }
