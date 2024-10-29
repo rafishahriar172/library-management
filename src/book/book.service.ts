@@ -46,4 +46,7 @@ export class BookService {
 
     return bookDto as BookDTO;
   }
+  async getBook(){
+    return this.prisma.book.findMany();
+  }
 }

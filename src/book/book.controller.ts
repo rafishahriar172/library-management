@@ -8,6 +8,11 @@ import { BookDTO } from './dto/book.dto';
 export class BookController {
   constructor(private bookservice: BookService) {}
   
+  @Get()
+  async getbooks(){
+    return this.bookservice.getBook();
+  }
+  
   @UseGuards(JwtAuthGuard)
   @Post('createbook')
   @UseInterceptors(FileInterceptor('image'))
@@ -17,5 +22,5 @@ export class BookController {
   ) {
     const userData = { ...registerDto, image };
     return this.bookservice.createBook(userData);
-  }
+  }  
 }
