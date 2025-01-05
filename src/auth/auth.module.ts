@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { RefreshTokenModule } from 'src/refresh-token/refresh-token.module';
 import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt'; // Import JwtModule
 import { UsersModule } from '../users/users.module';
@@ -9,6 +10,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 @Module({
   imports: [
     UsersModule, // Import UsersModule to access UsersService
+    RefreshTokenModule,
     JwtModule.registerAsync({
       imports: [ConfigModule], // Import ConfigModule to use environment variables
       inject: [ConfigService], // Inject ConfigService to read environment variables

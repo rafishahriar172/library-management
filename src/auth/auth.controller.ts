@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -26,4 +27,9 @@ export class AuthController {
     const userData = { ...registerDto, image };
     return this.authService.registerbyAdmin(userData);
   }
+
+  // @Post('refresh-token')
+  // async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
+  //   return this.authService.refreshToken(refreshTokenDto.refreshToken);
+  // }
 }

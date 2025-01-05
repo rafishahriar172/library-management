@@ -5,6 +5,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaService } from './prisma/prisma.service';
 import { BookModule } from './book/book.module';
+import { RefreshTokenService } from './refresh-token/refresh-token.service';
+import { RefreshTokenModule } from './refresh-token/refresh-token.module';
 
 @Module({
   imports: [
@@ -16,7 +18,8 @@ import { BookModule } from './book/book.module';
     AuthModule,
     UsersModule,
     BookModule,
+    RefreshTokenModule,
   ],
-  providers: [PrismaService],
+  providers: [PrismaService, RefreshTokenService],
 })
 export class AppModule {}

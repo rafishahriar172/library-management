@@ -68,18 +68,28 @@ model Reservation {
 }
 
 model User {
-  id          String       @id @default(uuid())
-  name        String
-  email       String        @unique
-  password    String
-  image       String?
-  phone       String?
-  role        Role
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  Comment     Comment[]
-  Loan        Loan[]
-  Reservation Reservation[]
+  id           String         @id @default(uuid())
+  name         String
+  email        String         @unique
+  password     String
+  image        String?
+  phone        String?
+  role         Role
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  Comment      Comment[]
+  Loan         Loan[]
+  Reservation  Reservation[]
+  RefreshToken RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 enum LoanStatus {
