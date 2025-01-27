@@ -1,33 +1,22 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+/* eslint-disable prettier/prettier */
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsString, MinLength, IsStrongPassword } from 'class-validator';
 
 export class RegisterDto {
-  @ApiProperty({ description: 'The name of the user' })
-  @IsNotEmpty()
-  @IsString()
-  name: string;
-
-  @ApiProperty({ description: 'The email of the user' })
-  @IsNotEmpty()
+  @ApiProperty({ description: 'User email address', example: 'user@example.com' })
   @IsEmail()
   email: string;
 
-  @ApiProperty({ description: 'The password for the account', minLength: 6 })
-  @IsNotEmpty()
-  @MinLength(6)
+  @ApiProperty({ description: 'User name', example: 'John Doe' })
+  @IsString()
+  name: string;
+
+  @ApiProperty({ 
+    description: 'User password (must meet strong password criteria)', 
+    example: 'P@ssw0rd123!' 
+  })
+  @IsString()
+  @MinLength(8)
+  @IsStrongPassword()
   password: string;
-
-  @ApiPropertyOptional({ description: 'The phone number of the user' })
-  @IsOptional()
-  @IsString()
-  phone?: string;
-
-  @ApiPropertyOptional({ description: 'The role of the user (for admins only)' })
-  @IsOptional()
-  @IsString()
-  role?: string; // Only admins can set this explicitly
-
-  @ApiPropertyOptional({ type: 'string', format: 'binary', description: 'Profile image file' })
-  @IsOptional()
-  image?: Express.Multer.File;
 }

@@ -1,35 +1,94 @@
-import { Controller, Post, Body, UseInterceptors, UploadedFile } from '@nestjs/common';
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  Get,
+  Res,
+  Put,
+  Delete,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { RegisterDto } from './dto/register.dto';
+import { LocalAuthGuard } from './guards/local-auth.guard';
 import { LoginDto } from './dto/login.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { RegisterDto } from './dto/register.dto';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
+import { FacebookAuthGuard } from './guards/facebook-auth.guard';
+import { Request, Response } from 'express';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
+ApiTags('auth');
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  @UseInterceptors(FileInterceptor('image'))
-  async register(@Body() registerDto: RegisterDto, @UploadedFile() image: Express.Multer.File) {
-    const userData = { ...registerDto, image };
-    return this.authService.register(userData);
-  }
-
-  @Post('login')
-  async login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+  async register(@Body() registerDto: RegisterDto) {
+    return await this.authService.registerUser(
+      registerDto.email,
+      registerDto.name,
+      registerDto.password,
+    );
   }
 
   @Post('registerAdmin')
-  @UseInterceptors(FileInterceptor('image'))
-  async registerbyAdmin(@Body() registerDto: RegisterDto, @UploadedFile() image: Express.Multer.File) {
-    const userData = { ...registerDto, image };
-    return this.authService.registerbyAdmin(userData);
+  async registerAdmin(@Body() registerDto: RegisterDto) {
+    return await this.authService.registerUserAdmin(
+      registerDto.email,
+      registerDto.name,
+      registerDto.password,
+    );
   }
 
-  // @Post('refresh-token')
-  // async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
-  //   return this.authService.refreshToken(refreshTokenDto.refreshToken);
-  // }
+  @Post('login')
+  @ApiBody({ type: LoginDto }) // Specifies the DTO for the request body
+  @UseGuards(LocalAuthGuard)
+  async login(@Req() req: Request) {
+    return this.authService.login(req.user);
+  }
+
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  async googleAuth(@Req() req: Request) {
+    // This method is a placeholder to initiate Google login.
+  }
+
+  @Get('google/redirect')
+  @UseGuards(GoogleAuthGuard)
+  async googleRedirect(@Req() req: Request, @Res() res: Response) {
+    const user = req.user;
+    const result = await this.authService.login(user);
+    res.redirect(`http://localhost:5000?token=${result.access_token}`);
+  }
+
+  @Get('facebook')
+  @UseGuards(FacebookAuthGuard)
+  async facebookAuth(@Req() req: Request) {
+    // This method is a placeholder to initiate Facebook login.
+  }
+
+  @Get('facebook/redirect')
+  @UseGuards(FacebookAuthGuard)
+  async facebookRedirect(@Req() req: Request, @Res() res: Response) {
+    const user = req.user;
+    const result = await this.authService.login(user);
+    res.redirect(`http://localhost:5000?token=${result.access_token}`);
+  }
+
+  @Post('deleteUser')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', format: 'email' },
+      },
+      required: ['email'],
+    },
+  })
+  async deleteUser(@Body('email') email: string) {
+    return await this.authService.deleteUser(email);
+  }
 }

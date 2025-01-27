@@ -1,25 +1,36 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule } from '@nestjs/config';
 import { PrismaService } from './prisma/prisma.service';
-import { BookModule } from './book/book.module';
-import { RefreshTokenService } from './refresh-token/refresh-token.service';
-import { RefreshTokenModule } from './refresh-token/refresh-token.module';
+import { JwtModule } from '@nestjs/jwt';
+import { BooksService } from './books/books.service';
+import { BooksController } from './books/books.controller';
+import { BooksModule } from './books/books.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true,envFilePath: '.env', }),
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_EXPIRATION },
+    ConfigModule.forRoot({
+      isGlobal: true,
     }),
     AuthModule,
-    UsersModule,
-    BookModule,
-    RefreshTokenModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
+        const secret = configService.get<string>('JWT_SECRET');        
+        return {
+          secret,
+          signOptions: { expiresIn: '1h' },
+        };
+      },
+    }),
+    BooksModule,
   ],
-  providers: [PrismaService, RefreshTokenService],
+  controllers: [BooksController],
+  providers: [AppService, PrismaService, BooksService],
 })
 export class AppModule {}

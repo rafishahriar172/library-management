@@ -1,24 +1,32 @@
+/* eslint-disable prettier/prettier */
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = new DocumentBuilder()
     .setTitle('Library Management API')
-    .setDescription('API documentation for Library Management')
+    .setDescription('API documentation for the Library Management app')
     .setVersion('1.0')
-    .addBearerAuth()
+    .addBearerAuth() // For JWT authentication
+    .addOAuth2({
+      type: 'oauth2',
+      flows: {
+        implicit: {
+          authorizationUrl: 'https://accounts.google.com/o/oauth2/auth', // Example for Google OAuth
+          scopes: {
+            profile: 'Access your profile',
+            email: 'Access your email',
+          },
+        },
+      },
+    })
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
-  app.useGlobalPipes(new ValidationPipe());
-  app.enableCors({
-    origin: 'http://localhost:3000', // Adjust this to your client's origin
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-  });
-  await app.listen(process.env.PORT ?? 3000);
+  SwaggerModule.setup('api', app, document); // Swagger UI at http://localhost:3000/api
+
+  await app.listen(5000);
 }
 bootstrap();

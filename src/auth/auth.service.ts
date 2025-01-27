@@ -1,71 +1,112 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
-import { JwtService } from '@nestjs/jwt';
-import { RefreshTokenService } from 'src/refresh-token/refresh-token.service';
+import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService,
-    private refreshTokenService: RefreshTokenService,
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService, // Add ConfigService
   ) {}
 
-  async validateUser(email: string, password: string): Promise<any> {
-    const user = await this.usersService.findByEmail(email);
-    if (user && (await bcrypt.compare(password, user.password))) {      
-      const { password, ...result } = user;
-      return result;
+  async validateLocalUser(email: string, password: string) {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user) throw new UnauthorizedException('Invalid email or password');
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid)
+      throw new UnauthorizedException('Invalid email or password');
+    return user;
+  }
+
+  async registerUser(email: string, name: string, password: string) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    try {
+      const user = await this.prisma.user.create({
+        data: { email, name, password: hashedPassword, role: 'MEMBER' },
+      });
+      return user;
+    } catch (err) {
+      throw new UnauthorizedException('User registration failed');
     }
-    return null;
+  }
+
+  async registerUserAdmin(email: string, name: string, password: string) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    try {
+      const user = await this.prisma.user.create({
+        data: { email, name, password: hashedPassword, role: 'ADMIN' },
+      });
+      return user;
+    } catch (err) {
+      throw new UnauthorizedException('User registration failed');
+    }
   }
 
   async login(user: any) {
-    const validatedUser = await this.validateUser(user.email, user.password);
+    const payload = { email: user.email, role: user.role, sub: user.id };
+    const secret = this.configService.get<string>('JWT_SECRET');
+    return { access_token: this.jwtService.sign(payload, { secret }) }; // Use the secret explicitly
+  }
 
-    if (!validatedUser) {
-      console.log('User validation failed.'); // This will log if the user is not found or password doesn't match
+  async validateUser(providerUserId: string, provider: string) {
+    const user = await this.prisma.provider.findFirst({
+      where: {
+        providerUserId,
+        provider,
+      },
+      include: {
+        User: true,
+      },
+    });
+
+    if (!user) {
+      return null;
     }
+    return user.User; // Return the associated User
+  }
 
-    const payload = {
-      sub: validatedUser.id,
-      email: validatedUser.email,
-      role: validatedUser.role,
-    };
-    const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
-    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
-    //console.log(user.id)
-    const { refreshToken: retoken, userId: uid } =
-      await this.refreshTokenService.CreateRefreshToken({
-        refreshToken,
-        userId: validatedUser.id,
+  async createUser(
+    email: string,
+    name: string,
+    providerUserId: string,
+    provider: string,
+  ) {
+    const newUser = await this.prisma.user.create({
+      data: {
+        email,
+        name,
+        password: await bcrypt.hash('defaultPassword', 10), // Add a default password or handle it appropriately
+        role: 'MEMBER', // Default role, can be changed later
+        Provider: {
+          create: {
+            provider,
+            providerUserId,
+          },
+        },
+      },
+    });
+
+    return newUser;
+  }
+
+  async deleteUser(email: string) {
+    try {
+      await this.prisma.user.delete({
+        where: {
+          email: email, // Email is passed as a string here
+        },
       });
 
-    return {
-      access_token: accessToken,
-      refresh_token: refreshToken,
-      user: validatedUser,
-    };
-  }
-
-  async register(userData: any) {
-    return this.usersService.createUser(userData);
-  }
-
-  async registerbyAdmin(userData: any) {
-    return this.usersService.createUserByAdmin(userData);
-  }
-
-  async refreshToken(refreshToken: string) {
-    try {
-      const newAccessToken =
-        this.refreshTokenService.VerifyRefreshToken(refreshToken);
-
-      return { access_token: newAccessToken };
+      return { message: 'User deleted successfully' };
     } catch (error) {
-      throw new UnauthorizedException('Invalid or expired refresh token');
+      console.error('Error deleting user:', error);
+      throw new Error('Unauthorized');
     }
   }
 }

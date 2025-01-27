@@ -1,28 +1,36 @@
-import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { RefreshTokenModule } from 'src/refresh-token/refresh-token.module';
-import { AuthController } from './auth.controller';
-import { JwtModule } from '@nestjs/jwt'; // Import JwtModule
-import { UsersModule } from '../users/users.module';
-import { JwtStrategy } from './jwt.strategy';
+/* eslint-disable prettier/prettier */
+import { Module,Global } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
+import { PrismaService } from '../prisma/prisma.service';
+import { PassportModule } from '@nestjs/passport';
+import { JwtService } from '@nestjs/jwt';
+import { LocalStrategy } from './stratagies/local.stratagy';
+import { JwtStrategy } from './stratagies/jwt.stratagy';
+import { GoogleStrategy } from './stratagies/google.strategy';
+import { FacebookStrategy } from './stratagies/facebook.strategy';
+import { PrismaModule } from '../prisma/prisma.module';
 
+@Global()
 @Module({
   imports: [
-    UsersModule, // Import UsersModule to access UsersService
-    RefreshTokenModule,
-    JwtModule.registerAsync({
-      imports: [ConfigModule], // Import ConfigModule to use environment variables
-      inject: [ConfigService], // Inject ConfigService to read environment variables
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '3600s' }, // Set your token expiration
-      }),
-    }),
-    ConfigModule, // Ensure ConfigModule is imported to use environment variables
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }), // Load environment variables
+    PassportModule,
+    PrismaModule // Import PrismaModule
   ],
-  providers: [AuthService, JwtStrategy], // Provide AuthService and JwtStrategy
+  providers: [
+    AuthService,
+    PrismaService,
+    LocalStrategy,
+    JwtStrategy,
+    GoogleStrategy,
+    FacebookStrategy,
+    JwtService, // Ensure JwtService is listed as a provider
+    ConfigService, // Ensure ConfigService is listed as a provider
+  ],
   controllers: [AuthController],
-  exports: [AuthService], // Export AuthService for use in other modules
 })
 export class AuthModule {}
