@@ -101,5 +101,6 @@ This document provides an overview of the API endpoints, their HTTP methods, des
 
 This list makes it easy to understand the structure of the API and provides quick reference information for development.
 
+---
 
-**To view this file press Cntrl + Shift + V**
+ **To view this file press Cntrl + Shift + V**

@@ -14,6 +14,8 @@ import { UserprofileService } from './userprofile/userprofile.service';
 import { UserprofileModule } from './userprofile/userprofile.module';
 import { CategoryController } from './category/category.controller';
 import { CategoryModule } from './category/category.module';
+import { LoanController } from './loan/loan.controller';
+import { LoanModule } from './loan/loan.module';
 
 @Module({
   imports: [
@@ -35,8 +37,9 @@ import { CategoryModule } from './category/category.module';
     BooksModule,
     UserprofileModule,
     CategoryModule,
+    LoanModule,
   ],
-  controllers: [BooksController, CategoryController],
+  controllers: [BooksController, CategoryController, LoanController],
   providers: [AppService, PrismaService, BooksService, UserprofileService],
 })
 export class AppModule {}
