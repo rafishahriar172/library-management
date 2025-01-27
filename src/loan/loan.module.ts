@@ -8,5 +8,6 @@ import { PrismaModule } from '../prisma/prisma.module';
   imports: [PrismaModule],
   controllers: [LoanController],
   providers: [LoanService],
+  exports: [LoanService],
 })
 export class LoanModule {}

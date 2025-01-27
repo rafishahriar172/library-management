@@ -16,6 +16,7 @@ import { CategoryController } from './category/category.controller';
 import { CategoryModule } from './category/category.module';
 import { LoanController } from './loan/loan.controller';
 import { LoanModule } from './loan/loan.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { LoanModule } from './loan/loan.module';
     UserprofileModule,
     CategoryModule,
     LoanModule,
+    MailModule,
   ],
   controllers: [BooksController, CategoryController, LoanController],
   providers: [AppService, PrismaService, BooksService, UserprofileService],

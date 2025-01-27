@@ -40,6 +40,11 @@ export class UserProfileDto {
   @IsString()
   state?: string;
 
+  @ApiProperty({ example: 'user country', description: 'The country of the user' })
+  @IsOptional()
+  @IsString()
+  country?: string;
+
   @ApiProperty({ example: 'user phone', description: 'The phone of the user' })
   @IsOptional()
   @IsString()
