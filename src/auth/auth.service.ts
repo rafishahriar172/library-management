@@ -5,6 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { MailService } from '../mail/mail.service'; // Import the EmailService
 
 @Injectable()
 export class AuthService {
@@ -12,6 +13,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService, // Add ConfigService
+    private readonly emailService: MailService, // Add EmailService
   ) {}
 
   async validateLocalUser(email: string, password: string) {
@@ -30,6 +32,10 @@ export class AuthService {
       const user = await this.prisma.user.create({
         data: { email, name, password: hashedPassword, role: 'MEMBER' },
       });
+      const emailsend = await this.emailService.sendTestEmail(email, 'Welcome to Library Management', 'You have been registered');
+      if(!emailsend){
+        console.log('Email was not send',emailsend);
+      }
       return user;
     } catch (err) {
       throw new UnauthorizedException('User registration failed');
@@ -42,6 +48,12 @@ export class AuthService {
       const user = await this.prisma.user.create({
         data: { email, name, password: hashedPassword, role: 'ADMIN' },
       });
+
+      //send email
+      const emailsend = await this.emailService.sendTestEmail(email, 'Welcome to Library Management', 'You have been registered as an admin');
+      if(!emailsend){
+        console.log('Email was not send',emailsend);
+      }
       return user;
     } catch (err) {
       throw new UnauthorizedException('User registration failed');
