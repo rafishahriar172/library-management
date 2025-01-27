@@ -11,6 +11,7 @@ import { JwtStrategy } from './stratagies/jwt.stratagy';
 import { GoogleStrategy } from './stratagies/google.strategy';
 import { FacebookStrategy } from './stratagies/facebook.strategy';
 import { PrismaModule } from '../prisma/prisma.module';
+import { MailService } from 'src/mail/mail.service';
 
 @Global()
 @Module({
@@ -30,6 +31,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     FacebookStrategy,
     JwtService, // Ensure JwtService is listed as a provider
     ConfigService, // Ensure ConfigService is listed as a provider
+    MailService,
   ],
   controllers: [AuthController],
 })

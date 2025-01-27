@@ -36,7 +36,7 @@ export class AuthService {
       if(!emailsend){
         console.log('Email was not send',emailsend);
       }
-      return user;
+      return {user,emailsend};
     } catch (err) {
       throw new UnauthorizedException('User registration failed');
     }
@@ -51,10 +51,11 @@ export class AuthService {
 
       //send email
       const emailsend = await this.emailService.sendTestEmail(email, 'Welcome to Library Management', 'You have been registered as an admin');
+      
       if(!emailsend){
         console.log('Email was not send',emailsend);
       }
-      return user;
+      return {user,emailsend};
     } catch (err) {
       throw new UnauthorizedException('User registration failed');
     }
