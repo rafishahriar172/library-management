@@ -9,26 +9,26 @@ import {
     Body,
     Query,
     UseGuards,
-    UseInterceptors,
-    UploadedFile,
+    //UseInterceptors,
+    //UploadedFile,
   } from '@nestjs/common';
-  import { FileInterceptor } from '@nestjs/platform-express';
+  //import { FileInterceptor } from '@nestjs/platform-express';
   import { BooksService } from './books.service';
   import { CreateBookDto } from './dto/create-book.dto';
   import { UpdateBookDto } from './dto/update-book.dto';
   import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
   import { RolesGuard } from '../auth/guards/roles.guards';
   import { Roles } from '../auth/decorators/roles.decorator';
-  import { diskStorage } from 'multer';
-  import { extname } from 'path';
+  // import { diskStorage } from 'multer';
+  // import { extname } from 'path';
   
   @Controller('books')
   export class BooksController {
     constructor(private readonly booksService: BooksService) {}
   
     @Get()
-    async getAllBooks(@Query('page') page: number, @Query('limit') limit: number) {
-      return await this.booksService.getAllBooks(page, limit);
+    async getAllBooks() {
+      return await this.booksService.getAllBooks();
     }
   
     @Get(':id')
@@ -48,17 +48,17 @@ import {
     @Post()
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles('ADMIN')
-    @UseInterceptors(FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-          cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
-        },
-      }),
-    }))
-    async createBook(@Body() createBookDto: CreateBookDto, @UploadedFile() image: Express.Multer.File) {
-      return await this.booksService.createBook({ ...createBookDto, image });
+    // @UseInterceptors(FileInterceptor('image', {
+    //   storage: diskStorage({
+    //     destination: './uploads',
+    //     filename: (req, file, cb) => {
+    //       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    //       cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
+    //     },
+    //   }),
+    // }))
+    async createBook(@Body() createBookDto: CreateBookDto){ //, @UploadedFile() image: Express.Multer.File) {
+      return await this.booksService.createBook({ ...createBookDto });
     }
   
     @Put(':id')

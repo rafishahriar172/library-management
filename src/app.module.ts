@@ -10,6 +10,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { BooksService } from './books/books.service';
 import { BooksController } from './books/books.controller';
 import { BooksModule } from './books/books.module';
+import { UserprofileService } from './userprofile/userprofile.service';
+import { UserprofileModule } from './userprofile/userprofile.module';
+import { CategoryController } from './category/category.controller';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -29,8 +33,10 @@ import { BooksModule } from './books/books.module';
       },
     }),
     BooksModule,
+    UserprofileModule,
+    CategoryModule,
   ],
-  controllers: [BooksController],
-  providers: [AppService, PrismaService, BooksService],
+  controllers: [BooksController, CategoryController],
+  providers: [AppService, PrismaService, BooksService, UserprofileService],
 })
 export class AppModule {}

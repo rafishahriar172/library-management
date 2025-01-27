@@ -3,9 +3,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
-import { S3 } from 'aws-sdk';
-import { join } from 'path';
-import { promises as fs } from 'fs';
+//import { S3 } from 'aws-sdk';
+// import { join } from 'path';
+// import { promises as fs } from 'fs';
 
 @Injectable()
 export class BooksService {
@@ -13,16 +13,11 @@ export class BooksService {
     private readonly prisma: PrismaService,
 ) {}
 
-  async getAllBooks(page: number = 1, limit: number = 10) {
-    const books = await this.prisma.book.findMany({
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+  async getAllBooks() {
+    const books = await this.prisma.book.findMany();
     const totalCount = await this.prisma.book.count();
     return {
-      data: books,
-      page,
-      limit,
+      data: books,     
       totalCount,
     };
   }
@@ -36,28 +31,33 @@ export class BooksService {
   }
 
   async createBook(createBookDto: CreateBookDto) {
-    const { image, ...bookData } = createBookDto;
+    // const { image, ...bookData } = createBookDto;
 
-    const s3 = new S3();
-    const filePath = join(__dirname, '../../uploads', image.filename);
-    const fileContent = await fs.readFile(filePath);
+    // const s3 = new S3();
+    // const filePath = join(__dirname, '../../uploads', image.filename);
+    // const fileContent = await fs.readFile(filePath);
 
-    const uploadResult = await s3.upload({
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
-      Key: `${Date.now()}-${image.originalname}`,
-      Body: fileContent,
-      ContentType: image.mimetype,
-    }).promise();
+    // const uploadResult = await s3.upload({
+    //   Bucket: process.env.AWS_S3_BUCKET_NAME,
+    //   Key: `${Date.now()}-${image.originalname}`,
+    //   Body: fileContent,
+    //   ContentType: image.mimetype,
+    // }).promise();
 
-    await fs.unlink(filePath); // Remove the file after upload
+    // await fs.unlink(filePath); // Remove the file after upload
 
-    return await this.prisma.book.create({
-      data: {
-        ...bookData,
-        image: uploadResult.Location,
+    const { categoryIds, ...bookData } = createBookDto;
+
+  return await this.prisma.book.create({
+    data: {
+      ...bookData,
+      Category: {
+        connect: categoryIds.map((id) => ({ id })),
       },
-    });
+    },
+  });
   }
+
 
   async updateBook(id: string, updateBookDto: UpdateBookDto) {
     const book = await this.prisma.book.findUnique({ where: { id } });
