@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '../mail/mail.service'; // Import the EmailService
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -61,11 +62,20 @@ export class AuthService {
     }
   }
 
-  async login(user: any) {
+  async login(user: any, res: Response) {
     const payload = { email: user.email, role: user.role, sub: user.id };
-    const secret = this.configService.get<string>('JWT_SECRET');
-    return { access_token: this.jwtService.sign(payload, { secret }) }; // Use the secret explicitly
+    const secret = this.configService.get<string>("JWT_SECRET");
+    const token = this.jwtService.sign(payload, { secret });
+  
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+      sameSite: "lax",
+    });
+  
+    return res.status(200).json({ message: "Login successful", token });
   }
+  
 
   async validateUser(providerUserId: string, provider: string) {
     const user = await this.prisma.provider.findFirst({

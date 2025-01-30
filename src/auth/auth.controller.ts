@@ -46,8 +46,8 @@ export class AuthController {
   @Post('login')
   @ApiBody({ type: LoginDto }) // Specifies the DTO for the request body
   @UseGuards(LocalAuthGuard)
-  async login(@Req() req: Request) {
-    return this.authService.login(req.user);
+  async login(@Req() req: Request, @Res() res: Response) {
+    return this.authService.login(req.user, res);
   }
 
   @Get('google')
@@ -56,13 +56,13 @@ export class AuthController {
     // This method is a placeholder to initiate Google login.
   }
 
-  @Get('google/redirect')
-  @UseGuards(GoogleAuthGuard)
-  async googleRedirect(@Req() req: Request, @Res() res: Response) {
-    const user = req.user;
-    const result = await this.authService.login(user);
-    res.redirect(`http://localhost:5000?token=${result.access_token}`);
-  }
+  // @Get('google/redirect')
+  // @UseGuards(GoogleAuthGuard)
+  // async googleRedirect(@Req() req: Request, @Res() res: Response) {
+  //   const user = req.user;
+  //   const result = await this.authService.login(user,res);
+  //   res.redirect(`http://localhost:5000?token=${result.access_token}`);
+  // }
 
   @Get('facebook')
   @UseGuards(FacebookAuthGuard)
@@ -70,13 +70,13 @@ export class AuthController {
     // This method is a placeholder to initiate Facebook login.
   }
 
-  @Get('facebook/redirect')
-  @UseGuards(FacebookAuthGuard)
-  async facebookRedirect(@Req() req: Request, @Res() res: Response) {
-    const user = req.user;
-    const result = await this.authService.login(user);
-    res.redirect(`http://localhost:5000?token=${result.access_token}`);
-  }
+  // @Get('facebook/redirect')
+  // @UseGuards(FacebookAuthGuard)
+  // async facebookRedirect(@Req() req: Request, @Res() res: Response) {
+  //   const user = req.user;
+  //   const result = await this.authService.login(user,res);
+  //   res.redirect(`http://localhost:5000?token=${result.access_token}`);
+  // }
 
   @Post('deleteUser')
   @ApiBody({
