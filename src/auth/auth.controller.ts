@@ -50,6 +50,12 @@ export class AuthController {
     return this.authService.login(req.user, res);
   }
 
+  @Get('logout')
+  logout(@Res() res: Response) {
+    res.clearCookie("token", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" });
+    return res.json({ message: 'Logged out successfully' });
+  }
+
   @Get('google')
   @UseGuards(GoogleAuthGuard)
   async googleAuth(@Req() req: Request) {
