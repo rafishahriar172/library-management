@@ -51,6 +51,7 @@ export class AuthController {
   }
 
   @Get('logout')
+  @UseGuards(LocalAuthGuard)
   logout(@Res() res: Response) {
     res.clearCookie("token", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" });
     return res.json({ message: 'Logged out successfully' });
