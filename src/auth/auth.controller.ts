@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
@@ -51,7 +52,7 @@ export class AuthController {
   }
 
   @Get('logout')
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(JwtAuthGuard)
   logout(@Res() res: Response) {
     res.clearCookie("token", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" });
     return res.json({ message: 'Logged out successfully' });
