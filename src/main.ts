@@ -31,7 +31,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   app.enableCors({
-    origin: [process.env.FRONTEND_URL || "http://localhost:3000"], // ✅ Use exact frontend URL
+    origin: "https://library-management-frontend-delta.vercel.app", // ✅ Use exact frontend URL
     credentials: true, // ✅ Required for cookies
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     allowedHeaders: "Content-Type, Accept, Authorization",
