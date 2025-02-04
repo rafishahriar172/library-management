@@ -15,7 +15,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService, // Add ConfigService
     private readonly emailService: MailService, // Add EmailService
-  ) {}
+  ) { }
 
   async validateLocalUser(email: string, password: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
@@ -24,6 +24,7 @@ export class AuthService {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid)
       throw new UnauthorizedException('Invalid email or password');
+    
     return user;
   }
 
@@ -34,10 +35,10 @@ export class AuthService {
         data: { email, name, password: hashedPassword, role: 'MEMBER' },
       });
       const emailsend = await this.emailService.sendTestEmail(email, 'Welcome to Library Management', 'You have been registered');
-      if(!emailsend){
-        console.log('Email was not send',emailsend);
+      if (!emailsend) {
+        console.log('Email was not send', emailsend);
       }
-      return {user,emailsend};
+      return { user, emailsend };
     } catch (err) {
       throw new UnauthorizedException('User registration failed');
     }
@@ -52,30 +53,30 @@ export class AuthService {
 
       //send email
       const emailsend = await this.emailService.sendTestEmail(email, 'Welcome to Library Management', 'You have been registered as an admin');
-      
-      if(!emailsend){
-        console.log('Email was not send',emailsend);
+
+      if (!emailsend) {
+        console.log('Email was not send', emailsend);
       }
-      return {user,emailsend};
+      return { user, emailsend };
     } catch (err) {
       throw new UnauthorizedException('User registration failed');
     }
   }
 
   async login(user: any, res: Response) {
-    const payload = { email: user.email, role: user.role, sub: user.id };
+    const payload = { email: user.email, role: user.role, name: user.name, sub: user.id };
     const secret = this.configService.get<string>("JWT_SECRET");
     const token = this.jwtService.sign(payload, { secret });
-  
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // Use secure cookies in production
       sameSite: "lax",
     });
-  
+
     return res.status(200).json({ message: "Login successful", token });
   }
-  
+
 
   async validateUser(providerUserId: string, provider: string) {
     const user = await this.prisma.provider.findFirst({
@@ -91,7 +92,7 @@ export class AuthService {
     if (!user) {
       return null;
     }
-    return user.User; // Return the associated User
+    return user.User; 
   }
 
   async createUser(
@@ -104,8 +105,8 @@ export class AuthService {
       data: {
         email,
         name,
-        password: await bcrypt.hash('defaultPassword', 10), // Add a default password or handle it appropriately
-        role: 'MEMBER', // Default role, can be changed later
+        password: await bcrypt.hash('defaultPassword', 10),
+        role: 'MEMBER',
         Provider: {
           create: {
             provider,
